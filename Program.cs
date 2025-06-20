@@ -1,4 +1,6 @@
 using StackExchange.Redis;
+using Microsoft.Extensions.Options;
+using MongoDB.Driver;
 
 namespace AuthenticationServer {
 	public class Program {
@@ -13,6 +15,17 @@ namespace AuthenticationServer {
 			// docker run -p 6379:6379 redis
 			builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect("localhost"));
 			builder.Services.AddHttpClient();
+			
+			builder.Services.Configure<MongoDbSettings>(
+				builder.Configuration.GetSection("MongoDB"));
+
+			builder.Services.AddSingleton<IMongoClient, MongoClient>(sp =>
+			{
+				var settings = sp.GetRequiredService<IOptions<MongoDbSettings>>().Value;
+				return new MongoClient(settings.ConnectionString);
+			});
+
+			builder.Services.AddSingleton<UserRepository>();
 
 
 			var app = builder.Build();

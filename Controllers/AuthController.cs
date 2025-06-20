@@ -9,9 +9,10 @@ namespace AuthenticationServer.Controllers {
 	public class AuthController : ControllerBase {
 
 		private IDatabase redis;
-
-		public AuthController(IConnectionMultiplexer muxer) {
+		private readonly UserRepository _userRepository;
+		public AuthController(IConnectionMultiplexer muxer, UserRepository userRepository) {
 			redis = muxer.GetDatabase();
+			_userRepository = userRepository;
 		}
 
 		[Route("login")]
@@ -39,10 +40,13 @@ namespace AuthenticationServer.Controllers {
 
 		[Route("register")]
 		[HttpPost]
-		public ActionResult Register([FromBody] User user) {
-			// Add user to database
+		public async Task<IActionResult> Register(User user){
+    		var existingUser = await _userRepository.GetByUsernameAsync(user.Username);
+    		if (existingUser != null)
+        		return BadRequest("Usuário já existe");
 
-			return Ok();
-		}
+   		await _userRepository.CreateAsync(user);
+        return Ok("Usuário registrado com sucesso");
+}
 	}
 }
