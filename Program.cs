@@ -13,20 +13,21 @@ namespace AuthenticationServer {
 
 			// Execute the command below to activate redis:
 			// docker run -p 6379:6379 redis
-			builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect("localhost"));
+			string? redisConfig = Environment.GetEnvironmentVariable("REDIS_CONFIGURATION");
+			string? mongoConnectionString = Environment.GetEnvironmentVariable("MONGO_CONNECTION_STRING");
+			string? mongoDatabaseName = Environment.GetEnvironmentVariable("MONGO_DATABASE_NAME");
+
+			// For testing purposes
+			//redisConfig = "localhost";
+			//mongoConnectionString = "mongodb://localhost:27017";
+			//mongoDatabaseName = "AuthDb";
+
+			builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConfig));
 			builder.Services.AddHttpClient();
-			
-			builder.Services.Configure<MongoDbSettings>(
-				builder.Configuration.GetSection("MongoDB"));
 
-			builder.Services.AddSingleton<IMongoClient, MongoClient>(sp =>
-			{
-				var settings = sp.GetRequiredService<IOptions<MongoDbSettings>>().Value;
-				return new MongoClient(settings.ConnectionString);
-			});
+			builder.Services.AddSingleton<IMongoClient, MongoClient>(sp => new MongoClient(mongoConnectionString));
 
-			builder.Services.AddSingleton<UserRepository>();
-
+			builder.Services.AddSingleton<UserRepository>(sp => new UserRepository(mongoDatabaseName, sp.GetService<IMongoClient>()));
 
 			var app = builder.Build();
 

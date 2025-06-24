@@ -8,9 +8,9 @@ public class UserRepository
 {
     private readonly IMongoCollection<User> _users;
 
-    public UserRepository(IOptions<MongoDbSettings> settings, IMongoClient client)
+    public UserRepository(string databaseName, IMongoClient client)
     {
-        var database = client.GetDatabase(settings.Value.Database);
+        var database = client.GetDatabase(databaseName);
         _users = database.GetCollection<User>("Users");
     }
 
