@@ -1,0 +1,55 @@
+version: '3.8'
+
+networks:
+  appredes:
+    driver: bridge
+
+services:
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: abc
+    networks:
+      - appredes
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    networks:
+      - appredes
+    ports:
+      - "6379:6379"
+
+  backend:
+    build: ./backend
+    container_name: testeback
+    ports:
+      - "5000:80"
+    environment:
+      REDIS_CONFIGURATION: redis:6379
+      MONGO_CONNECTION_STRING: mongodb://root:abc@mongo:27017
+      MONGO_DATABASE_NAME: AuthDb
+    depends_on:
+      - mongo
+      - redis
+    networks:
+      - appredes
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    networks:
+      - appredes
+
+volumes:
+  mongodb_data:
