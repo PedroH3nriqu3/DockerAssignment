@@ -27,10 +27,16 @@ namespace AuthenticationServer.Controllers {
 				// else return status 401.
 				// Save to redis only if login is accepted.
 
+				User existingUser = await _userRepository.GetByUsernameAsync(user.Username);
+				if(existingUser.Password != user.Password) {
+					return Unauthorized();
+				}
+
 				storedPassword = user.Password;
 				await redis.StringSetAsync(user.Username, storedPassword);
 				await redis.KeyExpireAsync(user.Username, TimeSpan.FromSeconds(60));
 
+				return Ok();
 			} else if (user.Password == storedPassword) {
 				return Ok();
 			}
@@ -40,13 +46,14 @@ namespace AuthenticationServer.Controllers {
 
 		[Route("register")]
 		[HttpPost]
-		public async Task<IActionResult> Register(User user){
-    		var existingUser = await _userRepository.GetByUsernameAsync(user.Username);
-    		if (existingUser != null)
-        		return BadRequest("Usuário já existe");
+		public async Task<IActionResult> Register(User user) {
+    		User existingUser = await _userRepository.GetByUsernameAsync(user.Username);
+    		if (existingUser != null) {
+				return BadRequest("Usuário já existe");
+			}
 
-   		await _userRepository.CreateAsync(user);
-        return Ok("Usuário registrado com sucesso");
-}
+			await _userRepository.CreateAsync(user);
+			return Ok("Usuário registrado com sucesso");
+		}
 	}
 }
