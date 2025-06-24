@@ -13,7 +13,7 @@ function showMessage(message, type = 'info') {
 }
 
 // Função para alternar entre abas
-function showTab(tabName) {
+function showTab(event, tabName) {
     // Atualizar abas
     document.querySelectorAll('.tab').forEach(tab => {
         tab.classList.remove('active');
@@ -112,8 +112,6 @@ async function register() {
             // Limpar campos após registro bem-sucedido
             document.getElementById('register-username').value = '';
             document.getElementById('register-password').value = '';
-            // Voltar para a aba de login
-            showTab('login');
         } else {
             showMessage(`❌ Erro no registro: ${response.status}`, 'error');
         }
@@ -148,33 +146,3 @@ document.addEventListener('DOMContentLoaded', function() {
     // Mostrar mensagem inicial
     showMessage('🚀 Bem-vindo! Conecte-se ao servidor de autenticação.', 'info');
 });
-
-// Função para testar conexão com a API
-async function testConnection() {
-    try {
-        const response = await fetch(`${API_BASE_URL}/auth/login`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                username: 'test',
-                password: 'test'
-            })
-        });
-        
-        console.log('Status da conexão:', response.status);
-        return response.status !== 0; // Se não for 0, a conexão está funcionando
-    } catch (error) {
-        console.error('Erro de conexão:', error);
-        return false;
-    }
-}
-
-// Verificar conexão ao carregar a página
-window.addEventListener('load', async () => {
-    const isConnected = await testConnection();
-    if (!isConnected) {
-        showMessage('⚠️ Servidor não está respondendo. Verifique se está rodando na porta 5144.', 'error');
-    }
-}); 
