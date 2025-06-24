@@ -28,7 +28,7 @@ namespace AuthenticationServer.Controllers {
 				// Save to redis only if login is accepted.
 
 				User existingUser = await _userRepository.GetByUsernameAsync(user.Username);
-				if(existingUser.Password != user.Password) {
+				if(existingUser == null || existingUser.Password != user.Password) {
 					return Unauthorized();
 				}
 
