@@ -18,9 +18,9 @@ namespace AuthenticationServer {
 			string? mongoDatabaseName = Environment.GetEnvironmentVariable("MONGO_DATABASE_NAME");
 
 			// For testing purposes
-			redisConfig = "localhost";
-			mongoConnectionString = "mongodb://localhost:27017";
-			mongoDatabaseName = "AuthDb";
+			//redisConfig = "localhost";
+			//mongoConnectionString = "mongodb://localhost:27017";
+			//mongoDatabaseName = "AuthDb";
 
 			builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConfig));
 			builder.Services.AddHttpClient();
