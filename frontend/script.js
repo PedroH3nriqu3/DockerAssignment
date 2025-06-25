@@ -1,5 +1,5 @@
 // Configuração da API
-const API_BASE_URL = 'http://localhost:5144';
+const API_BASE_URL = 'http://localhost:5000';
 
 // Função para mostrar mensagens
 function showMessage(message, type = 'info') {
