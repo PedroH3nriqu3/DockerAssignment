@@ -44,10 +44,18 @@ services:
   frontend:
     build: ./frontend
     container_name: frontend
+    depends_on:
+      - backend
+    networks:
+      - appredes
+      
+  web:
+    image: nginx:alpine3.22
+    build: ./nginx
     ports:
       - "8080:80"
     depends_on:
-      - backend
+      - frontend
     networks:
       - appredes
 
